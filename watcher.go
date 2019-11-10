@@ -54,10 +54,16 @@ func (w *watcher) Run() {
 		for {
 			select {
 			case event := <-w.Events:
-				file, _ := os.Stat(event.Name)
-				if file.IsDir() && !shouldIgnoreDir(filepath.Base(event.Name)) {
-					w.addFolder(event.Name)
-				} else {
+				if event.Op&fsnotify.Create == fsnotify.Create {
+					file, _ := os.Stat(event.Name)
+					if file.IsDir() && !shouldIgnoreDir(filepath.Base(event.Name)) {
+						w.addFolder(event.Name)
+					} else {
+						w.files <- event.Name
+					}
+				}
+
+				if event.Op&fsnotify.Write == fsnotify.Write {
 					w.files <- event.Name
 				}
 			case err := <-w.Errors:
