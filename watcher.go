@@ -50,7 +50,6 @@ func (w *watcher) addFolder(folder string) {
 }
 
 func (w *watcher) Run() {
-	done := make(chan bool)
 	go func() {
 		for {
 			select {
@@ -66,7 +65,6 @@ func (w *watcher) Run() {
 			}
 		}
 	}()
-	<-done
 }
 
 func subfolders(startPath string) ([]string, error) {
