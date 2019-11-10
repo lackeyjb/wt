@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"syscall"
 
 	"github.com/logrusorgru/aurora"
 )
@@ -28,10 +29,15 @@ func gotest(args ...string) {
 	cmd.Stdout = w
 	cmd.Env = os.Environ()
 
+	testCmd := strings.Join(cmd.Args, " ")
+	fmt.Println(aurora.Blue(testCmd))
+
 	go consume(&wg, r)
 
 	if err := cmd.Run(); err != nil {
-		log.Println(err)
+		if _, ok := cmd.ProcessState.Sys().(syscall.WaitStatus); !ok {
+			log.Println(err)
+		}
 	}
 }
 
